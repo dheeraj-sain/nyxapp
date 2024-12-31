@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/11863/11863011.png">
+    <title>network:v1</title>
+</head>
+<body>
+    <!-- This Code is created, modified and edited by Dheeraj Sain, DevOps Engineer at Thinknyx Technologies. -->
+    <!-- Creation Date: 29 December, 2024 -->
+    <div class="centered-text">"This is the first version (V1) of the application."</div>
+    <canvas id="canvas-background"></canvas>
+    
+</body>
+<script>
+    const config = {
+    lines: 10,
+    radius: 9,
+    lineWidth: 25,
+    moveDistance: 200
+  };
+  
+  const safeAreaInset = Math.max(config.lineWidth / 2, config.radius);
+  
+  const pixelRatio = window.devicePixelRatio || 1;
+  const canvas = document.getElementById("canvas-background");
+  let ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth * pixelRatio;
+  canvas.height = window.innerHeight * pixelRatio;
+  ctx.scale(pixelRatio, pixelRatio);
+  
+  window.addEventListener("resize", () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.width = window.innerWidth * pixelRatio;
+    canvas.height = window.innerHeight * pixelRatio;
+    ctx.scale(pixelRatio, pixelRatio);
+  });
+  
+  const tau = Math.PI * 2;
+  
+  const randomInRange = (min, max) => Math.random() * (max - min) + min;
+  
+  class Point {
+    constructor(id, ix, iy, iradian) {
+      this.id = id;
+      this.x = ix;
+      this.y = iy;
+      this.dir = iradian;
+      this.counter = 0;
+      this.speed = randomInRange(0.5, 2);
+      this.color = randomInRange(0, 360);
+    }
+  
+    move() {
+      const dx = Math.sin(this.dir);
+      const dy = Math.cos(this.dir);
+      this.x += dx * this.speed;
+      this.y += dy * this.speed;
+  
+      if (this.x <= safeAreaInset) {
+        this.dir = tau - this.jitterDirection();
+      } else if (this.x > window.innerWidth) {
+        this.x = window.innerWidth - safeAreaInset;
+      } else if (this.x >= window.innerWidth - safeAreaInset) {
+        this.dir = tau - this.jitterDirection();
+      } else if (this.y <= safeAreaInset) {
+        this.dir = Math.PI - this.jitterDirection();
+      } else if (this.y > window.innerHeight) {
+        this.y = window.innerHeight - safeAreaInset;
+      } else if (this.y >= window.innerHeight - safeAreaInset) {
+        this.dir = Math.PI - this.jitterDirection();
+      }
+    }
+  
+    jitterDirection() {
+      const rnd = (Math.random() - 0.5) / 5;
+      return this.dir + rnd;
+    }
+  
+    draw(ctx) {
+      ctx.beginPath();
+    //   ctx.fillStyle = `hsla(${this.color}, 100%, 40%, 1)`;
+      ctx.fillStyle = "white";
+      ctx.arc(this.x, this.y, config.radius, 0, tau);
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+  
+  const points = Array(config.lines * 2)
+    .fill(0)
+    .map((_, i) => {
+      const xy = {
+        x: randomInRange(safeAreaInset, window.innerWidth - safeAreaInset),
+        y: randomInRange(safeAreaInset, window.innerHeight - safeAreaInset)
+      };
+      const dir = randomInRange(0, tau);
+      const point = new Point(i, xy.x, xy.y, dir);
+      return point;
+    });
+  
+  function drawLines(points) {
+    const lns = {};
+    for (let i = 0; i < points.length; i++) {
+      const point1 = points[i];
+      for (let k = 0; k < points.length; k++) {
+        const point2 = points[k];
+        const distance = Math.sqrt(
+          Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2)
+        );
+        const name =
+          point1.id < point2.id
+            ? `${point1.id}-${point2.id}`
+            : `${point2.id}-${point1.id}`;
+        const threshold = 200;
+        if (distance < 200) {
+          const alpha = Math.min(
+            1,
+            1 - (distance - 0.25 * threshold) / (0.75 * threshold)
+          );
+  
+          lns[name] = [point1, point2, alpha];
+        }
+      }
+    }
+  
+    Object.values(lns).forEach(([p1, p2, alpha]) => {
+      const hue = Math.round((Math.min(p1.x, p2.x) / window.innerWidth) * 360);
+  
+      ctx.strokeStyle = `hsla(${hue},100%,50%,${alpha})`;
+  
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.lineWidth = config.lineWidth;
+      ctx.lineCap = "round";
+  
+      ctx.stroke();
+      ctx.closePath();
+    });
+  }
+  
+  function render() {
+    requestAnimationFrame(render);
+  
+    ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  
+    points.forEach((point) => {
+      point.move();
+    });
+  
+    drawLines(points);
+  
+    points.forEach((point) => {
+      point.draw(ctx);
+    });
+  }
+  
+  render();
+  
+</script>
+</html>

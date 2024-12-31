@@ -1,0 +1,68 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body,
+html {
+    width: 100%;
+    height: 100%;
+    background: rgb(0, 0, 0.5);
+    background: linear-gradient(90deg, #12063b 19%, #09555c 60%);
+}
+
+#particles-js {
+    width: 100%;
+    height: 98%;
+    position: absolute;
+}
+
+
+
+.run-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    color: #fff;
+    font-family: fantasy;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: black;
+}
+
+
+header {
+    display: block;
+    padding-bottom: 10px;
+}
+
+.logo>img {
+    display: block;
+    margin: 5px auto;
+    width: 150px;
+    height: auto;
+}
+
+.uname input[type="text"],
+.pass input[type="password"] {
+    display: block;
+    padding: 4px;
+    text-align: center;
+    border-style: none;
+    margin: 10px auto;
+    border-bottom: 1px solid #000;
+}
+
+.submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.submit>input {
+    width: 80px;
+}
